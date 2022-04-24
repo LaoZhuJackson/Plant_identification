@@ -3,7 +3,7 @@
 import base64
 import os
 import tkinter as tk
-from os import getcwd
+import tkinter.messagebox
 from tkinter import *
 from tkinter.filedialog import askdirectory, askopenfilename
 from icon_ico import img as icon
@@ -30,19 +30,24 @@ def upload():
     access_token = '24.aca8f6441683bf1fe50eeb68c1744fdf.2592000.1653286981.282335-26039125'
     request_url = request_url + "?access_token=" + access_token
     headers = {'content-type': 'application/x-www-form-urlencoded'}
-    respond = requests.post(request_url, data=params, headers=headers).json()
-    length = len(respond['result'])
+    try:
+        respond = requests.post(request_url, data=params, headers=headers).json()
+        length = len(respond['result'])
 
-    lResult.config(text="识别结果:")  # 实现清除之前残留结果
+        lResult.config(text="识别结果:")  # 实现清除之前残留结果
 
-    # post一个请求，api返回结果
-    for i in range(length):
-        score = "匹配度：" + str(respond['result'][i]['score'] * 100) + "%"
-        name = "名称：" + respond['result'][i]['name']
-        result_text_append(str(i + 1) + ":")
-        result_text_append(score)
-        result_text_append(name)
-        result_text_append("---------------------------")
+        # post一个请求，api返回结果
+        for i in range(length):
+            s = round(respond['result'][i]['score'] * 100, 3)  # 限制小数点位数
+            score = "匹配度：" + str(s) + "%"
+            name = "名称：" + respond['result'][i]['name']
+            result_text_append(str(i + 1) + ":")
+            result_text_append(score)
+            result_text_append(name)
+            result_text_append("---------------------------")
+    except KeyError as e:
+        tk.messagebox.showerror("出错了", "图片过大！")
+        print("error")
 
 
 def result_text_append(text):
