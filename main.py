@@ -17,6 +17,7 @@ host = 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&c
 
 # 植物识别
 
+
 def upload():
     request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v1/plant"
     # 二进制打开图片
@@ -31,27 +32,23 @@ def upload():
     headers = {'content-type': 'application/x-www-form-urlencoded'}
     respond = requests.post(request_url, data=params, headers=headers).json()
     length = len(respond['result'])
-    print(length)
+
+    lResult.config(text="识别结果:")  # 实现清除之前残留结果
+
     # post一个请求，api返回结果
     for i in range(length):
-        print(i)
         score = "匹配度：" + str(respond['result'][i]['score'] * 100) + "%"
         name = "名称：" + respond['result'][i]['name']
+        result_text_append(str(i + 1) + ":")
         result_text_append(score)
         result_text_append(name)
-        result_text_append("-------------")
+        result_text_append("---------------------------")
 
 
 def result_text_append(text):
     lResult.config(text=lResult.cget("text") + "\n" + text)
 
 
-# def decode_picture(a, b, c):  # a为图片的临时存放路径，b为图片的base64码，c为图片的.扩展名
-#     tmp = open(a + c, 'wb+')
-#     tmp.write(b)
-#     tmp.close()
-#
-#
 def close_windows(path_close):
     ls = os.listdir(path_close)  # 获取该文件夹下所有图片的名称
     for i in ls:
@@ -92,6 +89,7 @@ def resize(w, h, w_box, h_box, pil_image):
 # tkinter图形化界面
 root_window = Tk()  # 创建主窗口
 root_window.title('laozhu植物识别')  # 给窗口起名字
+root_window.resizable(False, False)  # 禁止用户调整窗口尺寸大小
 
 # StringVar是Tk库内部定义的字符串变量类型，在这里用于管理部件上面的字符；
 # 这个可以跟踪变量值的变化,以保证值的变更随时可以显示在界面上
@@ -114,14 +112,14 @@ root_window.geometry(size_geo)  # 设置窗口大小:宽x高,注,此处不能为
 
 icon_b64 = base64.b64decode(icon)
 image01_b64 = base64.b64decode(Image01)
-tmp = open('./image/Image01.jpg', 'wb+')      #one.jpg为重新解压为图片后的图片名
+tmp = open('./image/Image01.jpg', 'wb+')  # one.jpg为重新解压为图片后的图片名
 tmp.write(image01_b64)
 tmp.close()
 
-tmp = open('./image/icon.ico', 'wb+')      #one.jpg为重新解压为图片后的图片名
+tmp = open('./image/icon.ico', 'wb+')  # one.jpg为重新解压为图片后的图片名
 tmp.write(icon_b64)
 tmp.close()
-#decode_picture(tem_path, icon_b64, '.ico')
+# decode_picture(tem_path, icon_b64, '.ico')
 root_window.iconbitmap('./image/icon.ico')  # 更改左上角图标
 root_window.config(background='#e5e5e7')  # 设置背景颜色
 
@@ -129,7 +127,7 @@ root_window.config(background='#e5e5e7')  # 设置背景颜色
 # 在最左上角添加文本框
 Label(root_window, text="请选择要识别的图片:", bg="#e5e5e7", font=('ArialBold', 10)).grid(row=0, column=0, padx=5,
                                                                                  pady=5)
-#decode_picture(tem_path, image01_b64, '.jpg')
+# decode_picture(tem_path, image01_b64, '.jpg')
 img_init = Image.open("./image/Image01.jpg")  # 初始化放入一张图片，让单位转成像素方便后面缩放图片用
 i_init = ImageTk.PhotoImage(img_init)
 lPreview = Label(root_window, image=i_init, anchor=tk.W, bd=1, relief="ridge", width=w_label,
